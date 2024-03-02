@@ -1,0 +1,51 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+#load the data
+data=pd.read_csv('/content/data.csv')
+
+
+
+
+# Drop unnecessary columns
+data.drop(columns=['id', 'Unnamed: 32'], inplace=True)
+
+# Encode the diagnosis column (Malignant: 1, Benign: 0)
+label_encoder = LabelEncoder()
+data['diagnosis'] = label_encoder.fit_transform(data['diagnosis'])
+
+# Split dataset into features and target
+X = data.drop(columns=['diagnosis'])
+y = data['diagnosis']
+
+# Standardize features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Initialize classifiers
+knn_classifier = KNeighborsClassifier()
+random_forest_classifier = RandomForestClassifier()
+logistic_regression = LogisticRegression()
+decision_tree_classifier = DecisionTreeClassifier()
+
+# Train and evaluate classifiers
+classifiers = {
+    "K-Nearest Neighbors": knn_classifier,
+    "Random Forest Classifier": random_forest_classifier,
+    "Logistic Regression": logistic_regression,
+    "Decision Tree Classifier": decision_tree_classifier
+}
+
+for name, classifier in classifiers.items():
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"{name} Accuracy: {accuracy}")
